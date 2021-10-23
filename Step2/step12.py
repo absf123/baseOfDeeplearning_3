@@ -59,6 +59,7 @@ if __name__ == "__main__":
     x0, x1 = Variable(np.array(2)), Variable(np.array(3))
     f = Add()
     y = f(x0, x1)  # 가변 인수 사용가능
+    y.backward()
     print(y.data)
 
     # 개선2
