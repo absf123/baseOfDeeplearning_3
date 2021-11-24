@@ -10,8 +10,8 @@ from Step1.step09 import Variable, as_array
 class Function:
     def __call__(self, *inputs):  # 개선1 : 가변 인수 받기
         xs = [x.data for x in inputs]
-        ys = self.forward(*xs)
-        if not isinstance(ys, tuple):  # 개선2 : unpack
+        ys = self.forward(*xs)  # 개선2 : unpack
+        if not isinstance(ys, tuple):
             ys = (ys,)  # 개선2 : 튜플이 아닌 경우 추가 지원
         outputs = [Variable(as_array(y)) for y in ys]
 
