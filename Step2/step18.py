@@ -100,17 +100,6 @@ def add(x1, x2):
     return Add()(x1, x2)
 
 
-x0 = Variable(np.array(1.0))
-x1 = Variable(np.array(1.0))
-t = add(x0, x1)
-y = add(x0, t)
-y.backward()
-
-print(y.grad, t.grad)  # None, None
-print(x0.grad, x1.grad)  # 2.0, 1.0
-# 우리가 관심있는 것 x0, x1의 미분값, y, t의 미분값은 필요하지 않음
-
-
 # 2. with 문을 활용한 모드 전환
 import contextlib
 
@@ -122,11 +111,8 @@ def config_test():
     finally:
         print('done')  # 후처리 : with 문 빠져나올때
 
-with config_test():
-    print('process...')
 
 # 위를 참고해서 using_config
-
 @contextlib.contextmanager
 def using_config(name, value):
     old_value = getattr(Config, name)  # gettar로 Config 클래스에서 꺼내오기
@@ -150,21 +136,38 @@ def square(x):
     return Square()(x)
 
 
-with using_config('enable_backprop', False):
-    x = Variable(np.array(2.0))
-    y = square(x)
-    # with 안에서만 '역전파 비활성 모드
-# with 블록을 벗어나면 '역전파 활성 모드'  => with torch.no_grad()와 동일한 역할임
-
 # 위에 처럼 매번 길게 작성하기 귀찮으니 짧게 처리하자
 
 def no_grad():
     return using_config('enable_backprop', False)
 
-# with torch.no_grad()와 동일 : 이제 기울기가 필요 없을 때는 no_grad 함수를 호출하면 됨 (모드 전환)
-with no_grad():
-    x = Variable(np.array(2.0))
-    y = square(x)
+if __name__ == "__main__":
+    x0 = Variable(np.array(1.0))
+    x1 = Variable(np.array(1.0))
+    t = add(x0, x1)
+    y = add(x0, t)
+    y.backward()
+
+    print(y.grad, t.grad)  # None, None
+    print(x0.grad, x1.grad)  # 2.0, 1.0
+    # 우리가 관심있는 것 x0, x1의 미분값, y, t의 미분값은 필요하지 않음
+
+
+    with config_test():
+        print('process...')
+
+    with using_config('enable_backprop', False):
+        x = Variable(np.array(2.0))
+        y = square(x)
+        # with 안에서만 '역전파 비활성 모드
+    # with 블록을 벗어나면 '역전파 활성 모드'  => with torch.no_grad()와 동일한 역할임
+
+
+    # with torch.no_grad()와 동일 : 이제 기울기가 필요 없을 때는 no_grad 함수를 호출하면 됨 (모드 전환)
+    with no_grad():
+        x = Variable(np.array(2.0))
+        y = square(x)
+
 
 
 
